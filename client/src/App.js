@@ -10,8 +10,15 @@ class App extends Component {
 
   constructor() {
     super();
-    this.color = '#000';
+    this.state = {
+      color: '#f00',
+      mousedown: false,
+    }
     this.updateCanvas = this.updateCanvas.bind(this);
+    this.handleDrawingEnd = this.handleDrawingEnd.bind(this);
+    this.handleWritingStart = this.handleWritingStart.bind(this);
+    this.handleWritingInProgress = this.handleWritingInProgress.bind(this);
+    this.getMosuePositionOnCanvas = this.getMosuePositionOnCanvas.bind(this);
   }
   
   componentDidMount() {
@@ -22,73 +29,76 @@ class App extends Component {
 
   updateCanvas() {
 
-    const canvas = this.canvas;
-    const canvasContext = canvas.getContext('2d');
+    this.canvas.addEventListener('mousedown', this.handleWritingStart);
+    this.canvas.addEventListener('mousemove', this.handleWritingInProgress);
+    this.canvas.addEventListener('mouseup', this.handleDrawingEnd);
+    this.canvas.addEventListener('mouseout', this.handleDrawingEnd);
 
-    const state = {
+    this.canvas.addEventListener('touchstart', this.handleWritingStart);
+    this.canvas.addEventListener('touchmove', this.handleWritingInProgress);
+    this.canvas.addEventListener('touchend', this.handleDrawingEnd);
+  }
+
+  handleWritingStart(event) {
+
+    var canvasContext = this.canvas.getContext('2d');
+
+    event.preventDefault();
+
+    const mousePos = this.getMosuePositionOnCanvas(event);
+    
+    canvasContext.beginPath();
+
+    canvasContext.moveTo(mousePos.x, mousePos.y);
+
+    canvasContext.lineWidth = 3;
+    canvasContext.strokeStyle = this.state.color;
+
+    canvasContext.fill();
+    
+    this.setState({
+      mousedown: true
+    })
+  }
+
+  handleWritingInProgress(event) {
+
+    var canvasContext = this.canvas.getContext('2d');
+
+    event.preventDefault();
+    
+    if (this.state.mousedown) {
+      const mousePos = this.getMosuePositionOnCanvas(event);
+
+      canvasContext.lineTo(mousePos.x, mousePos.y);
+      canvasContext.stroke();
+    }
+  }
+
+  handleDrawingEnd(event) {
+
+    var canvasContext = this.canvas.getContext('2d');
+
+    event.preventDefault();
+    
+    if (this.state.mousedown) {
+
+      canvasContext.stroke();
+    }
+    
+    this.setState({
       mousedown: false
-    };
+    })
+  }
 
-    canvas.addEventListener('mousedown', handleWritingStart);
-    canvas.addEventListener('mousemove', handleWritingInProgress);
-    canvas.addEventListener('mouseup', handleDrawingEnd);
-    canvas.addEventListener('mouseout', handleDrawingEnd);
+  getMosuePositionOnCanvas(event) {
+    const clientX = event.clientX || event.touches[0].clientX;
+    const clientY = event.clientY || event.touches[0].clientY;
+    const { offsetLeft, offsetTop } = event.target;
+    const canvasX = clientX - offsetLeft;
+    const canvasY = clientY - offsetTop;
 
-    canvas.addEventListener('touchstart', handleWritingStart);
-    canvas.addEventListener('touchmove', handleWritingInProgress);
-    canvas.addEventListener('touchend', handleDrawingEnd);
-
-
-    function handleWritingStart(event) {
-
-      event.preventDefault();
-
-      const mousePos = getMosuePositionOnCanvas(event);
-      
-      canvasContext.beginPath();
-
-      canvasContext.moveTo(mousePos.x, mousePos.y);
-
-      canvasContext.lineWidth = 3;
-      canvasContext.strokeStyle = this.state.color;
-
-      canvasContext.fill();
-      
-      state.mousedown = true;
-    }
-
-    function handleWritingInProgress(event) {
-      event.preventDefault();
-      
-      if (state.mousedown) {
-        const mousePos = getMosuePositionOnCanvas(event);
-
-        canvasContext.lineTo(mousePos.x, mousePos.y);
-        canvasContext.stroke();
-      }
-    }
-
-    function handleDrawingEnd(event) {
-      event.preventDefault();
-      
-      if (state.mousedown) {
-
-        canvasContext.stroke();
-      }
-      
-      state.mousedown = false;
-    }
-
-    function getMosuePositionOnCanvas(event) {
-      const clientX = event.clientX || event.touches[0].clientX;
-      const clientY = event.clientY || event.touches[0].clientY;
-      const { offsetLeft, offsetTop } = event.target;
-      const canvasX = clientX - offsetLeft;
-      const canvasY = clientY - offsetTop;
-
-      return { x: canvasX, y: canvasY };
-    }
-
+    return { x: canvasX, y: canvasY };
   }
 
   render() {
@@ -96,11 +106,11 @@ class App extends Component {
       <Container fluid>
         <Row>
           <Col className='column'>
-            <button className='black'/>
-            <button className='red' />
-            <button className='blue' />
-            <button className='green' />
-            <button className='yellow' />
+            <button className='black' onClick={()=>this.setState({color: '#000'})}/>
+            <button className='red' onClick={()=>this.setState({color: '#f00'})}/>
+            <button className='blue' onClick={()=>this.setState({color: '#00f'})}/>
+            <button className='green' onClick={()=>this.setState({color: '#0f0'})}/>
+            <button className='yellow' onClick={()=>this.setState({color: '#ff0'})}/>
           </Col>
         </Row>
         <Row>

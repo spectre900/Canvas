@@ -4,6 +4,7 @@
 
 .drawingBox{
     margin: auto;
+    border-width: 5px;
     border-style: solid;
     background-color: white;
 }
