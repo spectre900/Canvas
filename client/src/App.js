@@ -1,69 +1,122 @@
 import React, { Component } from 'react';
 import { jsPDF } from 'jspdf';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
+import {Row, Col, Container} from 'react-bootstrap';
+
 import './App.css';
 
 class App extends Component {
+
+  constructor() {
+    super();
+    this.color = '#000';
+    this.updateCanvas = this.updateCanvas.bind(this);
+  }
   
   componentDidMount() {
+    this.canvas.width = Math.min(700, window.innerWidth*0.9);
+    this.canvas.height = Math.min(700, window.innerHeight*0.6);
     this.updateCanvas();
   }
+
   updateCanvas() {
 
-    const c = this.refs.drawingBox;
-    c.addEventListener("mousedown", setLastCoords); // fires before mouse left btn is released
-    c.addEventListener("mousemove", freeForm);
+    const canvas = this.canvas;
+    const canvasContext = canvas.getContext('2d');
 
-    const ctx = c.getContext("2d");
+    const state = {
+      mousedown: false
+    };
 
-    function setLastCoords(e) {
-        const {x, y} = c.getBoundingClientRect();
-        lastX = e.clientX - x;
-        lastY = e.clientY - y;
+    canvas.addEventListener('mousedown', handleWritingStart);
+    canvas.addEventListener('mousemove', handleWritingInProgress);
+    canvas.addEventListener('mouseup', handleDrawingEnd);
+    canvas.addEventListener('mouseout', handleDrawingEnd);
+
+    canvas.addEventListener('touchstart', handleWritingStart);
+    canvas.addEventListener('touchmove', handleWritingInProgress);
+    canvas.addEventListener('touchend', handleDrawingEnd);
+
+
+    function handleWritingStart(event) {
+
+      event.preventDefault();
+
+      const mousePos = getMosuePositionOnCanvas(event);
+      
+      canvasContext.beginPath();
+
+      canvasContext.moveTo(mousePos.x, mousePos.y);
+
+      canvasContext.lineWidth = 3;
+      canvasContext.strokeStyle = this.state.color;
+
+      canvasContext.fill();
+      
+      state.mousedown = true;
     }
 
-    function freeForm(e) {
-        if (e.buttons !== 1) return; // left button is not pushed yet
-        penTool(e);
+    function handleWritingInProgress(event) {
+      event.preventDefault();
+      
+      if (state.mousedown) {
+        const mousePos = getMosuePositionOnCanvas(event);
+
+        canvasContext.lineTo(mousePos.x, mousePos.y);
+        canvasContext.stroke();
+      }
     }
 
-    function penTool(e) {
-        const {x, y} = c.getBoundingClientRect();
-        const newX = e.clientX - x;
-        const newY = e.clientY - y;
+    function handleDrawingEnd(event) {
+      event.preventDefault();
+      
+      if (state.mousedown) {
 
-        ctx.beginPath();
-        ctx.lineWidth = 5;
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(newX, newY);
-        ctx.strokeStyle = 'black';
-        ctx.stroke();
-        ctx.closePath();
-
-        lastX = newX;
-        lastY = newY;
+        canvasContext.stroke();
+      }
+      
+      state.mousedown = false;
     }
 
-    let lastX = 0;
-    let lastY = 0;  
-  }
+    function getMosuePositionOnCanvas(event) {
+      const clientX = event.clientX || event.touches[0].clientX;
+      const clientY = event.clientY || event.touches[0].clientY;
+      const { offsetLeft, offsetTop } = event.target;
+      const canvasX = clientX - offsetLeft;
+      const canvasY = clientY - offsetTop;
 
-  print(){
-    var imgData = document.getElementById('drawingBox').toDataURL('image/PNG');
-    var pdf = new jsPDF('l', 'px',[500, 500]);
-    pdf.addImage(imgData, 'PNG', 0, 0, 500, 500);
-    window.open(URL.createObjectURL(pdf.output("blob")))
+      return { x: canvasX, y: canvasY };
+    }
+
   }
 
   render() {
     return (
-      <div>
-        <canvas id='drawingBox' ref='drawingBox' width='500px' height='500px' className='drawingBox'>
-        </canvas>
-        <button onClick={this.print.bind(this)}>
-          print
-        </button>
-      </div>
+      <Container fluid>
+        <Row>
+          <Col className='column'>
+            <button className='black'/>
+            <button className='red' />
+            <button className='blue' />
+            <button className='green' />
+            <button className='yellow' />
+          </Col>
+        </Row>
+        <Row>
+          <Col className='column'>
+            <canvas ref={(ref) => (this.canvas = ref)} className='drawingBox'>
+            </canvas>
+          </Col>
+        </Row>
+        <Row>
+          <Col className='column'>
+            <button className='download'>
+              Download the PDF
+            </button>
+          </Col>
+        </Row>
+      </Container>
     );
   }
 }

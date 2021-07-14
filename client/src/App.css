@@ -1,4 +1,43 @@
+.column{
+    text-align: center;
+}
+
 .drawingBox{
-    background-color: white;
+    margin: auto;
     border-style: solid;
+    background-color: white;
+}
+
+.red, .blue, .green, .yellow, .black{
+    margin: max(1vw, 10px);
+    width: max(3vw, 30px);
+    height: max(3vw, 30px);
+}
+
+.red{
+    background-color: red;
+}
+
+.blue{
+    background-color: blue;
+}
+
+.green{
+    background-color: green;
+}
+
+.yellow{
+    background-color: yellow;
+}
+
+.black{
+    background-color: black;
+}
+
+.download{
+    margin: 2vw;
+    padding: 10px;
+    font-size: max(2vw, 18px);
+    background-color: white;
+    border-radius: 20px;
 }
