@@ -121,11 +121,11 @@ class App extends Component {
       <Container fluid className='holder'>
         <Row>
           <Col className='column'>
-            <button className='black' onClick={()=>this.setState({color: '#000'})}/>
-            <button className='red' onClick={()=>this.setState({color: '#f00'})}/>
-            <button className='blue' onClick={()=>this.setState({color: '#00f'})}/>
-            <button className='green' onClick={()=>this.setState({color: '#0f0'})}/>
-            <button className='yellow' onClick={()=>this.setState({color: '#ff0'})}/>
+            <button className='black color' onClick={()=>this.setState({color: '#000'})}/>
+            <button className='red color' onClick={()=>this.setState({color: '#f00'})}/>
+            <button className='blue color' onClick={()=>this.setState({color: '#00f'})}/>
+            <button className='green color' onClick={()=>this.setState({color: '#0f0'})}/>
+            <button className='yellow color' onClick={()=>this.setState({color: '#ff0'})}/>
           </Col>
         </Row>
         <Row>

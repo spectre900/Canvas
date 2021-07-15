@@ -15,10 +15,17 @@
     background-color: white;
 }
 
-.red, .blue, .green, .yellow, .black{
-    margin: max(1vw, 10px);
-    width: max(3vw, 30px);
-    height: max(3vw, 30px);
+.color{
+    margin: max(1vw, 8px);
+    width: max(4vw, 40px);
+    height: max(4vw, 40px);
+    border-radius: 50%;
+    border-style: solid;
+    margin-top: 30px;
+}
+
+.color:active{
+    background-color: white;
 }
 
 .red{
