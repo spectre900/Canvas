@@ -23,7 +23,7 @@ app.get('/download/:file', function(req, res){
 
 app.post('/generate', function(req, res){
   var pdf = new jsPDF(req.body.orientation, 'px', [req.body.width, req.body.height]);
-  pdf.addImage(req.body.data, 'PNG', 0, 0, req.body.width, req.body.height);
+  pdf.addImage(req.body.data, 'PNG', 0, 0, req.body.width, req.body.height, undefined, 'FAST');
   pdf.save(path.resolve(__dirname, 'pdf', req.body.name));
   res.sendStatus(200);
 });
