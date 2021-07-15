@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { jsPDF } from 'jspdf';
+import { v4 as uuidv4 } from 'uuid';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Row, Col, Container} from 'react-bootstrap';
@@ -18,8 +18,8 @@ class App extends Component {
     this.download = this.download.bind(this);
     this.updateCanvas = this.updateCanvas.bind(this);
     this.handleDrawingEnd = this.handleDrawingEnd.bind(this);
-    this.handleWritingStart = this.handleWritingStart.bind(this);
-    this.handleWritingInProgress = this.handleWritingInProgress.bind(this);
+    this.handleDrawingStart = this.handleDrawingStart.bind(this);
+    this.handleDrawingInProgress = this.handleDrawingInProgress.bind(this);
     this.getMosuePositionOnCanvas = this.getMosuePositionOnCanvas.bind(this);
   }
   
@@ -31,17 +31,17 @@ class App extends Component {
 
   updateCanvas() {
 
-    this.canvas.addEventListener('mousedown', this.handleWritingStart);
-    this.canvas.addEventListener('mousemove', this.handleWritingInProgress);
+    this.canvas.addEventListener('mousedown', this.handleDrawingStart);
+    this.canvas.addEventListener('mousemove', this.handleDrawingInProgress);
     this.canvas.addEventListener('mouseup', this.handleDrawingEnd);
     this.canvas.addEventListener('mouseout', this.handleDrawingEnd);
 
-    this.canvas.addEventListener('touchstart', this.handleWritingStart);
-    this.canvas.addEventListener('touchmove', this.handleWritingInProgress);
+    this.canvas.addEventListener('touchstart', this.handleDrawingStart);
+    this.canvas.addEventListener('touchmove', this.handleDrawingInProgress);
     this.canvas.addEventListener('touchend', this.handleDrawingEnd);
   }
 
-  handleWritingStart(event) {
+  handleDrawingStart(event) {
 
     var canvasContext = this.canvas.getContext('2d');
 
@@ -66,7 +66,7 @@ class App extends Component {
     })
   }
 
-  handleWritingInProgress(event) {
+  handleDrawingInProgress(event) {
 
     var canvasContext = this.canvas.getContext('2d');
 
@@ -108,12 +108,28 @@ class App extends Component {
 
   download(){
     var orientation='l';
-    if(this.canvas.height>this.canvas.width){
+      if(this.canvas.height>this.canvas.width){
       orientation='p';
     }
-    var pdf = new jsPDF(orientation, 'px', [this.canvas.width, this.canvas.height]);
-    pdf.addImage(this.canvas.toDataURL(), 'PNG', 0, 0, this.canvas.width, this.canvas.height);
-    window.open(URL.createObjectURL(pdf.output('blob')));
+    var name = uuidv4()+'.pdf';
+    var options = {
+      method: 'POST',
+      headers: {
+          'Content-type': 'application/json'
+      },
+      body: JSON.stringify({
+          'data': this.canvas.toDataURL(),
+          'orientation': orientation,
+          'width': this.canvas.width,
+          'height': this.canvas.height,
+          'name': name
+      })
+    }
+    fetch('/generate', options).then((res)=>{
+      if(res.status==200){
+        window.open('/download/'+name);
+      }
+    });
   }
 
   render() {
