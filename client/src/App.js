@@ -14,6 +14,8 @@ class App extends Component {
       color: '#f00',
       mousedown: false,
     }
+
+    this.download = this.download.bind(this);
     this.updateCanvas = this.updateCanvas.bind(this);
     this.handleDrawingEnd = this.handleDrawingEnd.bind(this);
     this.handleWritingStart = this.handleWritingStart.bind(this);
@@ -51,8 +53,11 @@ class App extends Component {
 
     canvasContext.moveTo(mousePos.x, mousePos.y);
 
-    canvasContext.lineWidth = 3;
+    canvasContext.lineWidth = 4;
+    canvasContext.lineCap = 'round';
+    canvasContext.lineJoin = 'round';
     canvasContext.strokeStyle = this.state.color;
+    canvasContext.fillStyle = this.state.color;
 
     canvasContext.fill();
     
@@ -101,9 +106,19 @@ class App extends Component {
     return { x: canvasX, y: canvasY };
   }
 
+  download(){
+    var orientation='l';
+    if(this.canvas.height>this.canvas.width){
+      orientation='p';
+    }
+    var pdf = new jsPDF(orientation, 'px', [this.canvas.width, this.canvas.height]);
+    pdf.addImage(this.canvas.toDataURL(), 'PNG', 0, 0, this.canvas.width, this.canvas.height);
+    window.open(URL.createObjectURL(pdf.output('blob')));
+  }
+
   render() {
     return (
-      <Container fluid>
+      <Container fluid className='holder'>
         <Row>
           <Col className='column'>
             <button className='black' onClick={()=>this.setState({color: '#000'})}/>
@@ -121,7 +136,7 @@ class App extends Component {
         </Row>
         <Row>
           <Col className='column'>
-            <button className='download'>
+            <button className='download' onClick={this.download}>
               Download the PDF
             </button>
           </Col>

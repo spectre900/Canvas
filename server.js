@@ -1,11 +1,9 @@
 const express = require('express');
-const jspdf = require('jspdf');
 const cors = require('cors');
 const path = require('path');
 const app = express();
 
 app.use(cors());
-
 app.use(express.static('client/build'));
 
 app.get('*', function(req, res){
